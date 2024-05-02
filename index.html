@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recipe Finder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    input[type="text"] {
+      width: calc(100% - 85px);
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #results {
+      margin-top: 20px;
+    }
+    .recipe {
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+    .recipe h2 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #333;
+    }
+    .recipe img {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 10px;
+    }
+    .recipe p {
+      color: #666;
+    }
+    .recipe a {
+      color: #4CAF50;
+      text-decoration: none;
+    }
+    .recipe a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Recipe Finder</h1>
+    <div>
+      <input type="text" id="ingredients" placeholder="Enter ingredients separated by commas">
+      <button onclick="searchRecipes()">Search</button>
+    </div>
+    <div id="results"></div>
+  </div>
+
+  <script>
+    function searchRecipes() {
+      const ingredients = document.getElementById('ingredients').value.trim();
+      if (!ingredients) {
+        alert('Please enter at least one ingredient.');
+        return;
+      }
+
+      const app_id = 'ce24f95e';
+      const app_key = '7dcd4aa3a12d15314822227fcb7cae38';
+      const apiUrl = `https://api.edamam.com/search?q=${ingredients}&app_id=${app_id}&app_key=${app_key}`;
+
+      fetch(apiUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok.');
+          }
+          return response.json();
+        })
+        .then(data => {
+          const resultsContainer = document.getElementById('results');
+          resultsContainer.innerHTML = '';
+
+          if (data.hits.length === 0) {
+            resultsContainer.innerHTML = '<p>No recipes found.</p>';
+          } else {
+            data.hits.forEach(hit => {
+              const recipe = hit.recipe;
+              const recipeDiv = document.createElement('div');
+              recipeDiv.classList.add('recipe');
+              recipeDiv.innerHTML = `
+                <h2>${recipe.label}</h2>
+                <p>Ingredients:</p>
+                <ul>
+                  ${recipe.ingredientLines.map(ingredient => `<li>${ingredient}</li>`).join('')}
+                </ul>
+                <p>Source: <a href="${recipe.url}" target="_blank">${recipe.source}</a></p>
+              `;
+              resultsContainer.appendChild(recipeDiv);
+            });
+          }
+        })
+        .catch(error => {
+          alert('An error occurred while fetching recipes.');
+          console.error('Error fetching recipes:', error);
+        });
+    }
+  </script>
+</body>
+</html>
+
+
